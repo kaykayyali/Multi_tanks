@@ -84,4 +84,4 @@ eurecaServer.exports.handshake = function()
 	}
 }
 
-server.listen(8000);
+server.listen(process.env.PORT || 8000);
