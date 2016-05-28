@@ -235,7 +235,7 @@ function startGame() {
         this.turret.kill();
         this.shadow.kill();
     }
-    var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game_canvas', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+    var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'game_canvas', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 
     function preload () {
