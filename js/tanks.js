@@ -235,7 +235,7 @@ function startGame() {
         this.turret.kill();
         this.shadow.kill();
     }
-    var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'game_canvas', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+    var game = new Phaser.Game(500, 500, Phaser.CANVAS, 'game_canvas', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 
     function preload () {
@@ -284,7 +284,7 @@ function startGame() {
         game.input.onDown.add(removeLogo, this);
 
         game.camera.follow(tank);
-        game.camera.deadzone = new Phaser.Rectangle(150, 150, 500, 300);
+        game.camera.deadzone = new Phaser.Rectangle(150, 150, 150, 150);
         game.camera.focusOnXY(0, 0);
 
         cursors = game.input.keyboard.createCursorKeys();
