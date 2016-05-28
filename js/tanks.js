@@ -80,6 +80,7 @@ function startGame() {
             left:false,
             right:false,
             up:false,
+            down:false,
             fire:false      
         }
 
@@ -87,6 +88,7 @@ function startGame() {
             left:false,
             right:false,
             up:false,
+            down:false,
             fire:false
         }
 
@@ -137,6 +139,7 @@ function startGame() {
             this.cursor.left != this.input.left ||
             this.cursor.right != this.input.right ||
             this.cursor.up != this.input.up ||
+            this.cursor.down != this.input.down ||
             this.cursor.fire != this.input.fire
         );
         
@@ -173,6 +176,11 @@ function startGame() {
         {
             //  The speed we'll travel at
             this.currentSpeed = 300;
+        }
+        if (this.cursor.down)
+        {
+            //  The speed we'll travel at
+            this.currentSpeed = -300;
         }
         else
         {
@@ -297,6 +305,7 @@ function startGame() {
         player.input.left = cursors.left.isDown;
         player.input.right = cursors.right.isDown;
         player.input.up = cursors.up.isDown;
+        player.input.down = cursors.down.isDown;
         player.input.fire = game.input.activePointer.isDown;
         player.input.tx = game.input.x+ game.camera.x;
         player.input.ty = game.input.y+ game.camera.y;

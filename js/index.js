@@ -1,7 +1,11 @@
 $(document).ready(function() {
 
 	$('#start_game_button').on('click', handle_start_game);
-
+	if ($.cookie('user_name')) {
+		$('#name_holder').text("Welcome back " + normalize_name($.cookie('user_name')));
+		$('#start_game_form').hide();
+		startGame();
+	}
 });
 
 function handle_start_game(event) {
@@ -9,7 +13,9 @@ function handle_start_game(event) {
 	name = normalize_name(name);
 	$('#name_holder').text("Playing as " + name);
 	$('#start_game_form').hide();
+	$.cookie('user_name', name);
 	startGame();
+	event.preventDefault();
 }
 
 function normalize_name(name) {
