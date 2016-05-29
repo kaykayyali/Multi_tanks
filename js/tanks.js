@@ -1,7 +1,7 @@
 var eurecaClient;
 function startGame() {
     var myId=0;
-
+    var player_data = {}
     var land;
 
     var shadow;
@@ -39,7 +39,6 @@ function startGame() {
             //create() is moved here to make sure nothing is created before uniq id assignation
             myId = id;
             create();
-            var player_data = {}
             player_data.name = $.cookie('display_name') || "Unknown";
             eurecaServer.handshake(player_data);
             ready = true;
@@ -48,8 +47,19 @@ function startGame() {
         eurecaClient.exports.kill = function(id)
         {   
             if (tanksList[id]) {
+                var style = { 
+                    font: "32px Arial", 
+                    fill: "#fff", 
+                    wordWrap: true, 
+                    wordWrapWidth: 300, 
+                    align: "center", 
+                    backgroundColor: "#ffff00" 
+                };
+                console.log("Signalled to kill ", id, tanksList[id])
                 tanksList[id].kill();
-                console.log('killing ', id, tanksList[id]);
+                if (id == myId) {
+                    game.add.text(0, 0, "You were killed.", style);
+                }
             }
         }
 
@@ -65,14 +75,14 @@ function startGame() {
             }
         }   
         
-        eurecaClient.exports.spawnEnemy = function(i, x, y, name)
+        eurecaClient.exports.spawnEnemy = function(id, x, y, name)
         {
-            
-            if (i == myId) return; //this is me
+            if (name == player_data.name) {return;}
+            if (id == myId) {return;} //this is me
             
             console.log('SPAWN');
-            var tnk = new Tank(i, game, tank, name);
-            tanksList[i] = tnk;
+            var tank = new Tank(id, game, tank, name);
+            tanksList[id] = tank;
         }
         
     }
@@ -127,7 +137,8 @@ function startGame() {
             wordWrap: true, 
             wordWrapWidth: self.tank.width, 
             align: "center", 
-            backgroundColor: "#ffff00" };
+            backgroundColor: "#ffff00" 
+        };
         this.display_name = game.add.text(x, y, display_name, style);
 
         this.shadow.anchor.set(0.5);
@@ -250,7 +261,7 @@ function startGame() {
         this.tank.kill();
         this.turret.kill();
         this.shadow.kill();
-        this.display_name.kill();
+        this.display_name.destroy();
     }
     var game = new Phaser.Game(500, 500, Phaser.CANVAS, 'game_canvas', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
@@ -362,9 +373,8 @@ function startGame() {
     function bulletHitPlayer (tank, bullet) {
         console.log("Bullet hit player");
         bullet.kill();
-
-        console.log(tank)
-        eurecaClient.exports.kill(tank.id)
+        console.log("health = ", tank)
+        eurecaServer.handle_kill(tank.id);
     }
 
     function render () {}

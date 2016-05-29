@@ -53,6 +53,14 @@ eurecaServer.onDisconnect(function (conn) {
 	}	
 });
 
+eurecaServer.exports.handle_kill = function (id) {
+	for (var c in clients)
+	{
+		var remote = clients[c].remote;
+		remote.kill(id);
+	}
+}
+
 eurecaServer.exports.handleKeys = function (keys) {
 	var conn = this.connection;
 	var updatedClient = clients[conn.id];
