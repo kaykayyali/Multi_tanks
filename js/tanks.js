@@ -57,9 +57,12 @@ function startGame() {
                     backgroundColor: "#ffff00" 
                 };
                 console.log("Signalled to kill ", id, tanksList[id])
+                var x = tanksList[id].x;
+                var y = tanksList[id].y;
+
                 tanksList[id].kill();
                 if (id == myId) {
-                    game.add.text(0, 0, "You were killed.", style);
+                    game.add.text(x, y, "You were killed.", style);
                 }
             }
         }
