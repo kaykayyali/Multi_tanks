@@ -68,18 +68,19 @@ eurecaServer.exports.handleKeys = function (keys) {
 }
 
 
-eurecaServer.exports.handshake = function()
+eurecaServer.exports.handshake = function(player_data)
 {
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;
+		clients[c].player_data = player_data;
 		for (var cc in clients)
 		{		
 			//send latest known position
 			var x = clients[cc].laststate ? clients[cc].laststate.x:  0;
 			var y = clients[cc].laststate ? clients[cc].laststate.y:  0;
  
-			remote.spawnEnemy(clients[cc].id, x, y);		
+			remote.spawnEnemy(clients[cc].id, x, y, player_data.name);		
 		}
 	}
 }

@@ -38,7 +38,9 @@ function startGame() {
             //create() is moved here to make sure nothing is created before uniq id assignation
             myId = id;
             create();
-            eurecaServer.handshake();
+            var player_data = {}
+            player_data.name = $.cookie('display_name') || "Unknown";
+            eurecaServer.handshake(player_data);
             ready = true;
         }   
         
@@ -62,20 +64,21 @@ function startGame() {
             }
         }   
         
-        eurecaClient.exports.spawnEnemy = function(i, x, y)
+        eurecaClient.exports.spawnEnemy = function(i, x, y, name)
         {
             
             if (i == myId) return; //this is me
             
             console.log('SPAWN');
-            var tnk = new Tank(i, game, tank);
+            var tnk = new Tank(i, game, tank, name);
             tanksList[i] = tnk;
         }
         
     }
 
 
-    Tank = function (index, game, player) {
+    Tank = function (index, game, player, display_name) {
+        var self = this;
         this.cursor = {
             left:false,
             right:false,
@@ -116,6 +119,15 @@ function startGame() {
         this.shadow = game.add.sprite(x, y, 'enemy', 'shadow');
         this.tank = game.add.sprite(x, y, 'enemy', 'tank1');
         this.turret = game.add.sprite(x, y, 'enemy', 'turret');
+
+        var style = { 
+            font: "16px Arial", 
+            fill: "#fff", 
+            wordWrap: true, 
+            wordWrapWidth: self.tank.width, 
+            align: "center", 
+            backgroundColor: "#ffff00" };
+        this.display_name = game.add.text(x, y, display_name, style);
 
         this.shadow.anchor.set(0.5);
         this.tank.anchor.set(0.5);
@@ -213,6 +225,9 @@ function startGame() {
 
         this.turret.x = this.tank.x;
         this.turret.y = this.tank.y;
+
+        this.display_name.x = this.tank.x - 30;
+        this.display_name.y = this.tank.y - 60;
     };
 
 
@@ -258,8 +273,8 @@ function startGame() {
         land.fixedToCamera = true;
         
         tanksList = {};
-        
-        player = new Tank(myId, game, tank);
+        var display_name = $.cookie('display_name');
+        player = new Tank(myId, game, tank, display_name);
         tanksList[myId] = player;
         tank = player.tank;
         turret = player.turret;
