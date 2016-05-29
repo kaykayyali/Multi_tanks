@@ -1,3 +1,4 @@
+var eurecaClient;
 function startGame() {
     var myId=0;
 
@@ -24,7 +25,7 @@ function startGame() {
     //this function will handle client communication with the server
     var eurecaClientSetup = function() {
         //create an instance of eureca.io client
-        var eurecaClient = new Eureca.Client();
+         eurecaClient = new Eureca.Client();
         
         eurecaClient.ready(function (proxy) {       
             eurecaServer = proxy;
@@ -112,7 +113,7 @@ function startGame() {
         
         
         this.currentSpeed =0;
-        this.fireRate = 500;
+        this.fireRate = 1000;
         this.nextFire = 0;
         this.alive = true;
 
@@ -360,6 +361,9 @@ function startGame() {
     function bulletHitPlayer (tank, bullet) {
         console.log("Bullet hit player");
         bullet.kill();
+
+        console.log(tank)
+        eurecaClient.exports.kill(tank.id)
     }
 
     function render () {}
