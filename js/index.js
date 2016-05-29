@@ -2,7 +2,7 @@ $(document).ready(function() {
 
 	$('#start_game_button').on('click', handle_start_game);
 	if ($.cookie('display_name')) {
-		$('#name_holder').text("Welcome back " + normalize_name($.cookie('user_name')));
+		$('#name_holder').text("Welcome back " + normalize_name($.cookie('display_name')));
 		$('#start_game_form').hide();
 		startGame();
 	}
