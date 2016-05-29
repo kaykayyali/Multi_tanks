@@ -16,8 +16,13 @@ var eurecaServer = new EurecaServer({allow:['setId', 'spawnEnemy', 'kill', 'upda
 
 //attach eureca.io to our http server
 eurecaServer.attach(server);
-
-
+function display_server_data() {
+	console.log("*********")
+	console.log("Clients ", clients);
+	console.log("*********")
+	console.log(' ');
+}
+setInterval(display_server_data, 5000);
 
 
 //eureca.io provides events to detect clients connect/disconnect
@@ -75,22 +80,34 @@ eurecaServer.exports.handleKeys = function (keys) {
 	}
 }
 
-
-eurecaServer.exports.handshake = function(player_data)
+eurecaServer.exports.handshake = function()
 {
+	console.log("Hand Shaking")
 	for (var c in clients)
 	{
 		var remote = clients[c].remote;
-		clients[c].player_data = player_data;
 		for (var cc in clients)
 		{		
 			//send latest known position
 			var x = clients[cc].laststate ? clients[cc].laststate.x:  0;
 			var y = clients[cc].laststate ? clients[cc].laststate.y:  0;
- 
-			remote.spawnEnemy(clients[cc].id, x, y, player_data.name);		
+ 			console.log("Emitting spawn ", clients[cc])
+			remote.spawnEnemy(clients[cc].id, x, y, clients[cc].player_data.name);		
 		}
 	}
+}
+
+
+eurecaServer.exports.set_player_data = function(id, player_data)
+{
+	console.log("Setting player data for ", id);
+	if (clients[id]){
+		clients[id].player_data = player_data;
+	}
+	else {
+		console.log("Failed to find client with id ", id);
+	}
+	
 }
 
 server.listen(process.env.PORT || 8000);

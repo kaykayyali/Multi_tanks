@@ -1,7 +1,8 @@
 var eurecaClient;
 function startGame() {
     var myId=0;
-    var player_data = {}
+    var player_data = {};
+    player_data.name = $.cookie('display_name') || "Unknown";
     var land;
 
     var shadow;
@@ -38,9 +39,9 @@ function startGame() {
         {
             //create() is moved here to make sure nothing is created before uniq id assignation
             myId = id;
+            eurecaServer.set_player_data(id, player_data);
             create();
-            player_data.name = $.cookie('display_name') || "Unknown";
-            eurecaServer.handshake(player_data);
+            eurecaServer.handshake();
             ready = true;
         }   
         
@@ -77,6 +78,7 @@ function startGame() {
         
         eurecaClient.exports.spawnEnemy = function(id, x, y, name)
         {
+            console.log("Spawning enemy tank named ", name);
             if (name == player_data.name) {return;}
             if (id == myId) {return;} //this is me
             
