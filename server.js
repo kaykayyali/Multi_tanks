@@ -58,10 +58,10 @@ eurecaServer.onDisconnect(function (conn) {
 	}	
 });
 
-eurecaServer.exports.handle_kill = function (id) {
+eurecaServer.exports.handle_kill = function (tank_id) {
 	for (var c in clients) {
 		var remote = clients[c].remote;
-		remote.kill(id);
+		remote.kill(tank_id);
 	}
 }
 
@@ -87,7 +87,8 @@ eurecaServer.exports.handshake = function() {
 			var x = clients[cc].laststate ? clients[cc].laststate.x:  0;
 			var y = clients[cc].laststate ? clients[cc].laststate.y:  0;
  			console.log("Emitting spawn ", clients[cc])
-			remote.spawnEnemy(clients[cc].id, x, y, clients[cc].player_data.name);		
+ 			console.log(clients[cc].player_data)
+			remote.spawnEnemy(clients[cc].id, x, y, clients[cc].player_data);		
 		}
 	}
 }

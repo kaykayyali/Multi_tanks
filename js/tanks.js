@@ -30,6 +30,7 @@ function startGame() {
         //methods defined under "exports" namespace become available in the server side
         eurecaClient.exports.setId = function(id) {
             myId = id;
+            client_data.socket_id = id;
             eurecaServer.set_player_data(id, player_data);
             eurecaServer.emit_message(player_data.name + " has connected.")
             game = new Phaser.Game(500, 500, Phaser.CANVAS, 'game_canvas');
@@ -76,18 +77,18 @@ function startGame() {
             PhaserGame.prototype.display_messages();
         }
         
-        eurecaClient.exports.spawnEnemy = function(id, x, y, name) {
+        eurecaClient.exports.spawnEnemy = function(id, x, y, new_player_data) {
             console.log("Spawning enemy tank named ", name);
             if (id == myId) {
                 console.log("SAME ID");
             return;
             } //this is me
-            else if (id == myId && name == player_data.name){
+            else if (id == myId && new_player_data.name == player_data.name){
                 console.log("Same ID and Name Wth?", id, name);
                 return;
             }
             console.log('SPAWN');
-            var tank = new Tank(id, game, tank, name);
+            var tank = new Tank(id, game, tank, new_player_data);
             client_data.tanks_list[id] = tank;
         }
         
@@ -124,7 +125,7 @@ function startGame() {
             land.fixedToCamera = true;
             
             var display_name = $.cookie('display_name');
-            player = new Tank(myId, game, null, display_name);
+            player = new Tank(myId, game, null, player_data);
             // console.log("Initiating hud");
             // this.hud = new Hud(game);
             // console.log(this.hud);
@@ -222,6 +223,8 @@ function startGame() {
             bullet.kill();
             console.log("health = ", tank)
             eurecaServer.handle_kill(tank.id);
+            console.log(tank)
+            eurecaServer.emit_message(player_data.name + " killed " + client_data.tanks_list[tank.id].player_data.name);
         },
         render: function() {}
     }

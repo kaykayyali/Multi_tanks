@@ -1,9 +1,10 @@
-var Tank = function (index, game, player, display_name) {
+var Tank = function (index, game, player, player_data) {
     console.log("Created with:");
     console.log("Game: ", game);  
     console.log("Player: ", player);  
-    console.log("Display Name: ", display_name);  
+    console.log("Display Name: ", player_data.name);  
     var self = this;
+    this.player_data = player_data;
     this.cursor = {
         left:false,
         right:false,
@@ -46,7 +47,8 @@ var Tank = function (index, game, player, display_name) {
         align: "center"
         // backgroundColor: "#ffff00" 
     };
-    this.display_name = game.add.text(x, y, display_name, style);
+    console.log(this.player_data);
+    this.display_name = game.add.text(x, y, this.player_data.name, style);
     this.shadow.anchor.set(0.5);
     this.tank.anchor.set(0.5);
     this.turret.anchor.set(0.3, 0.5);
