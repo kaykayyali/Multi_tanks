@@ -4,7 +4,8 @@ var myId=0;
 var eurecaServer;
 var player_data = {};
 var client_data = {
-        tanks_list: {}
+        tanks_list: {},
+        messages: []
     };
 var PhaserGame;
 function startGame() {
@@ -27,39 +28,30 @@ function startGame() {
             eurecaServer = proxy;
         });
         //methods defined under "exports" namespace become available in the server side
-        eurecaClient.exports.setId = function(id) 
-        {
+        eurecaClient.exports.setId = function(id) {
             myId = id;
             eurecaServer.set_player_data(id, player_data);
+            eurecaServer.emit_message(player_data.name + " has connected.")
             game = new Phaser.Game(500, 500, Phaser.CANVAS, 'game_canvas');
             game.state.add('Game', PhaserGame, true);
             setTimeout(eurecaServer.handshake, 2000); 
             ready = true;
         }   
-        eurecaClient.exports.kill = function(id)
-        {   
+        eurecaClient.exports.kill = function(id) {   
             if (client_data.tanks_list[id]) {
-                var style = { 
-                    font: "32px Arial", 
-                    fill: "#fff", 
-                    wordWrap: true, 
-                    wordWrapWidth: 300, 
-                    // align: "center" 
-                    // backgroundColor: "#ffff00" 
-                };
                 console.log("Signalled to kill ", id, client_data.tanks_list[id])
                 var x = client_data.tanks_list[id].x;
                 var y = client_data.tanks_list[id].y;
 
                 client_data.tanks_list[id].kill();
                 if (id == myId) {
-                    game.add.text(x, y, "You were killed.", style);
+                    client_data.messages.unshift("You were killed.")
+                    PhaserGame.prototype.display_messages();
                 }
             }
         }
 
-        eurecaClient.exports.updateState = function(id, state)
-        {
+        eurecaClient.exports.updateState = function(id, state) {
             console.log("Upadating State for ", id);
             if (client_data.tanks_list[id])  {
                 client_data.tanks_list[id].cursor = state;
@@ -70,9 +62,21 @@ function startGame() {
                 client_data.tanks_list[id].update();
             }
         }   
+        eurecaClient.exports.handle_new_message = function(new_message) {
+            console.log("New message recieved", new_message);
+            if (client_data.messages.length < 4 ) {
+                console.log("Adding message")
+                client_data.messages.unshift(new_message);
+            }
+            else {
+                console.log("Removing message")
+                client_data.messages.pop();
+                client_data.messages.unshift(new_message);
+            }
+            PhaserGame.prototype.display_messages();
+        }
         
-        eurecaClient.exports.spawnEnemy = function(id, x, y, name)
-        {
+        eurecaClient.exports.spawnEnemy = function(id, x, y, name) {
             console.log("Spawning enemy tank named ", name);
             if (id == myId) {
                 console.log("SAME ID");
@@ -88,7 +92,7 @@ function startGame() {
         }
         
     }
-    var PhaserGame = function () {
+    PhaserGame = function () {
         this.pad;
         this.stick;
         this.shoot;
@@ -121,6 +125,9 @@ function startGame() {
             
             var display_name = $.cookie('display_name');
             player = new Tank(myId, game, null, display_name);
+            // console.log("Initiating hud");
+            // this.hud = new Hud(game);
+            // console.log(this.hud);
             client_data.tanks_list[myId] = player;
             tank = player.tank;
             turret = player.turret;
@@ -180,6 +187,33 @@ function startGame() {
                     {
                         client_data.tanks_list[j].update();
                     }           
+                }
+            }
+        },
+        display_messages: function() {
+            if (!this.displayed_messages) {
+                this.displayed_messages = [];
+                console.log(this.displayed_messages)
+
+            }
+            else {
+                console.log(this.displayed_messages)
+                this.displayed_messages.forEach(function(message) {
+                    console.log("Deleting message ", message)
+                    message.destroy();
+                });
+            }
+            console.log("Updating Messages");
+            if (client_data.messages.length > 0) {
+                for (var x = 0; x <= client_data.messages.length - 1; x++) {
+                    var camera_width = game.camera.width / 4;
+                    var camera_height = ((game.camera.height / 4) - 100 );
+                    var camera_height_multiplier = 20; // pixels
+                    camera_height = camera_height + (camera_height_multiplier * x);
+                    var new_message = game.add.text(camera_width, camera_height, client_data.messages[(x)], {font: "12px Arial", fill: "#ffffff", stroke: '#000000', strokeThickness: 3});
+                    new_message.anchor.setTo(0.5, 0.5);
+                    new_message.fixedToCamera = true;
+                    this.displayed_messages.push(new_message);
                 }
             }
         },

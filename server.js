@@ -12,7 +12,7 @@ var clients = {};
 var EurecaServer = require('eureca.io').EurecaServer;
 
 //create an instance of EurecaServer
-var eurecaServer = new EurecaServer({allow:['setId', 'spawnEnemy', 'kill', 'updateState']});
+var eurecaServer = new EurecaServer({allow:['setId', 'spawnEnemy', 'kill', 'updateState', 'handle_new_message']});
 
 //attach eureca.io to our http server
 eurecaServer.attach(server);
@@ -38,7 +38,8 @@ eurecaServer.onConnect(function (conn) {
 	clients[conn.id] = {id:conn.id, remote:remote}
 	
 	//here we call setId (defined in the client side)
-	remote.setId(conn.id);	
+	remote.setId(conn.id);
+
 });
 
 //detect client disconnection
@@ -46,21 +47,19 @@ eurecaServer.onDisconnect(function (conn) {
     console.log('Client disconnected ', conn.id);
 	
 	var removeId = clients[conn.id].id;
-	
+	var message = clients[conn.id].player_data.name + " has left the game.";
 	delete clients[conn.id];
 	
-	for (var c in clients)
-	{
+	for (var c in clients) {
 		var remote = clients[c].remote;
-		
 		//here we call kill() method defined in the client side
+		this.emit_message(message);
 		remote.kill(conn.id);
 	}	
 });
 
 eurecaServer.exports.handle_kill = function (id) {
-	for (var c in clients)
-	{
+	for (var c in clients) {
 		var remote = clients[c].remote;
 		remote.kill(id);
 	}
@@ -70,8 +69,7 @@ eurecaServer.exports.handleKeys = function (keys) {
 	var conn = this.connection;
 	var updatedClient = clients[conn.id];
 	
-	for (var c in clients)
-	{
+	for (var c in clients) {
 		var remote = clients[c].remote;
 		remote.updateState(updatedClient.id, keys);
 		
@@ -80,14 +78,11 @@ eurecaServer.exports.handleKeys = function (keys) {
 	}
 }
 
-eurecaServer.exports.handshake = function()
-{
+eurecaServer.exports.handshake = function() {
 	console.log("Hand Shaking")
-	for (var c in clients)
-	{
+	for (var c in clients) {
 		var remote = clients[c].remote;
-		for (var cc in clients)
-		{		
+		for (var cc in clients) {		
 			//send latest known position
 			var x = clients[cc].laststate ? clients[cc].laststate.x:  0;
 			var y = clients[cc].laststate ? clients[cc].laststate.y:  0;
@@ -98,8 +93,7 @@ eurecaServer.exports.handshake = function()
 }
 
 
-eurecaServer.exports.set_player_data = function(id, player_data)
-{
+eurecaServer.exports.set_player_data = function(id, player_data) {
 	console.log("Setting player data for ", id);
 	if (clients[id]){
 		clients[id].player_data = player_data;
@@ -108,6 +102,19 @@ eurecaServer.exports.set_player_data = function(id, player_data)
 		console.log("Failed to find client with id ", id);
 	}
 	
+}
+
+eurecaServer.emit_message = function(message) {
+	for (var c in clients) {
+		var remote = clients[c].remote;
+		remote.handle_new_message(message);
+	}
+}
+eurecaServer.exports.emit_message = function(message) {
+	for (var c in clients) {
+		var remote = clients[c].remote;
+		remote.handle_new_message(message);
+	}
 }
 
 server.listen(process.env.PORT || 8000);
